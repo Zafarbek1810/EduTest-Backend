@@ -22,12 +22,17 @@ API: `http://localhost:3001`
 
 ## Muhit o'zgaruvchilari
 
-`.env` faylida:
+`.env` faylida (mahalliy) yoki **Render → Environment** (production):
 
-- `DATABASE_URL` — Neon PostgreSQL ulanishi
-- `JWT_SECRET` — token imzolash kaliti
-- `PORT` — server porti (default: 3001)
-- `CORS_ORIGIN` — frontend manzili
+| O'zgaruvchi | Majburiy | Izoh |
+|-------------|----------|------|
+| `DATABASE_URL` | Ha | Neon PostgreSQL (`?sslmode=require`) |
+| `JWT_SECRET` | Ha | Kamida **16 belgi** (masalan: `openssl rand -base64 32`) |
+| `CORS_ORIGIN` | Ha | Netlify manzili, masalan `https://your-app.netlify.app` |
+| `JWT_EXPIRES_IN` | Yo'q | Default: `7d` |
+| `PORT` | Yo'q | Render o'zi beradi |
+
+⚠️ `JWT_SECRET` Renderda bo'lmasa deploy **ZodError** bilan yiqiladi.
 
 ## Demo hisoblar
 

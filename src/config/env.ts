@@ -12,7 +12,27 @@ const envSchema = z.object({
     .describe('Vergul bilan ajratilgan frontend manzillari'),
 });
 
-export const env = envSchema.parse(process.env);
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  const lines = parsed.error.issues.map((issue) => {
+    const key = issue.path.join('.');
+    const hint =
+      key === 'JWT_SECRET'
+        ? 'Render → Environment → JWT_SECRET (kamida 16 belgili tasodifiy matn)'
+        : key === 'DATABASE_URL'
+          ? 'Neon → Connection string → DATABASE_URL'
+          : '';
+    return `  - ${key}: ${issue.message}${hint ? ` — ${hint}` : ''}`;
+  });
+  console.error(
+    'Server ishga tushmadi: muhit o\'zgaruvchilari noto\'g\'ri yoki yo\'q.\n' +
+      lines.join('\n'),
+  );
+  process.exit(1);
+}
+
+export const env = parsed.data;
 
 /** Netlify + mahalliy dev uchun bir nechta origin */
 export const corsOrigins = env.CORS_ORIGIN.split(',')
