@@ -6,7 +6,15 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16),
   JWT_EXPIRES_IN: z.string().default('7d'),
   PORT: z.coerce.number().default(3001),
-  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  CORS_ORIGIN: z
+    .string()
+    .default('http://localhost:5173')
+    .describe('Vergul bilan ajratilgan frontend manzillari'),
 });
 
 export const env = envSchema.parse(process.env);
+
+/** Netlify + mahalliy dev uchun bir nechta origin */
+export const corsOrigins = env.CORS_ORIGIN.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);

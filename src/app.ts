@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { env } from './config/env.js';
+import { corsOrigins } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import studentsRoutes from './modules/students/students.routes.js';
@@ -16,7 +16,7 @@ export function createApp() {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
       credentials: true,
     }),
   );

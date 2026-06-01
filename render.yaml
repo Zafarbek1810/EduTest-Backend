@@ -1,0 +1,21 @@
+# https://render.com — EduTest-Backend repozitoriyasi ildizi
+services:
+  - type: web
+    name: edutest-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma db push && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Netlify manzilingizni qo'shing (vergul bilan bir nechta bo'lishi mumkin)
+      - key: CORS_ORIGIN
+        sync: false
