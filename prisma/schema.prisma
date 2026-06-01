@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEACHER
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TopicStatus {
+  LOCKED
+  UNLOCKED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  OPEN_ANSWER
+}
+
+enum ResultStatus {
+  PASSED
+  FAILED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  username     String       @unique
+  passwordHash String
+  role         Role
+  fullName     String
+  status       UserStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  testResults  TestResult[]
+
+  @@index([role])
+}
+
+model Topic {
+  id        String       @id @default(cuid())
+  name      String
+  status    TopicStatus  @default(LOCKED)
+  createdAt DateTime     @default(now())
+  questions Question[]
+  results   TestResult[]
+}
+
+model Question {
+  id            String       @id @default(cuid())
+  topicId       String
+  type          QuestionType
+  questionText  String
+  options       Json?
+  correctAnswer String
+  orderIndex    Int          @default(0)
+  topic         Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+}
+
+model TestResult {
+  id              String       @id @default(cuid())
+  studentId       String
+  topicId         String
+  score           Float
+  correctAnswers  Int
+  wrongAnswers    Int
+  totalQuestions  Int
+  timeUsed        String
+  status          ResultStatus
+  createdAt       DateTime     @default(now())
+  student         User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topic           Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([topicId])
+  @@index([createdAt])
+}
