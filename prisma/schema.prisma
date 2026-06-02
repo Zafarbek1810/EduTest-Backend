@@ -71,6 +71,7 @@ model TestResult {
   id              String       @id @default(cuid())
   studentId       String
   topicId         String
+  submittedAnswers Json?
   score           Float
   correctAnswers  Int
   wrongAnswers    Int

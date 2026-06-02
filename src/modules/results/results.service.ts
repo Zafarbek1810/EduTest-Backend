@@ -53,6 +53,7 @@ export async function submitTest(
     data: {
       studentId,
       topicId,
+      submittedAnswers: answers,
       score,
       correctAnswers: correct,
       wrongAnswers: wrong,
@@ -74,7 +75,22 @@ export async function getResult(id: string, studentId?: string) {
     where: { id },
     include: {
       student: { select: { id: true, fullName: true } },
-      topic: { select: { id: true, name: true } },
+      topic: {
+        select: {
+          id: true,
+          name: true,
+          questions: {
+            orderBy: { orderIndex: 'asc' },
+            select: {
+              id: true,
+              type: true,
+              questionText: true,
+              options: true,
+              correctAnswer: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -83,5 +99,27 @@ export async function getResult(id: string, studentId?: string) {
     throw new NotFoundError('Natija topilmadi');
   }
 
-  return mapResult(result);
+  const mapped = mapResult(result);
+  const submittedAnswers = (result.submittedAnswers as Record<string, string> | null) ?? {};
+  const questionBreakdown = result.topic.questions.map((question) => {
+    const submittedAnswer = (submittedAnswers[question.id] ?? '').toString();
+    const normalizedSubmitted = submittedAnswer.trim().toLowerCase();
+    const normalizedCorrect = question.correctAnswer.trim().toLowerCase();
+
+    return {
+      questionId: question.id,
+      questionText: question.questionText,
+      type: question.type === 'MULTIPLE_CHOICE' ? 'multiple-choice' : 'open-answer',
+      options: (question.options as string[] | null) ?? undefined,
+      submittedAnswer,
+      correctAnswer: question.correctAnswer,
+      isCorrect: normalizedSubmitted !== '' && normalizedSubmitted === normalizedCorrect,
+    };
+  });
+
+  return {
+    ...mapped,
+    submittedAnswers,
+    questionBreakdown,
+  };
 }

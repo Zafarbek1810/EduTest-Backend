@@ -34,7 +34,7 @@ if (!parsed.success) {
 
 export const env = parsed.data;
 
-/** Netlify + mahalliy dev uchun bir nechta origin */
+/** Netlify + mahalliy dev uchun bir nechta origin (oxiridagi / olib tashlanadi) */
 export const corsOrigins = env.CORS_ORIGIN.split(',')
-  .map((o) => o.trim())
+  .map((o) => o.trim().replace(/\/$/, ''))
   .filter(Boolean);
